@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		D41193572C36DB2D00A56354 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4E1791C2C2C072E00EB4951 /* Assets.xcassets */; };
+		D46595CC2C36F0B7008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
+		D46595CD2C36F1C2008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
+		D46595CF2C36F1C3008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
 		D4E179192C2C072D00EB4951 /* QueueApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179182C2C072D00EB4951 /* QueueApp.swift */; };
 		D4E1794E2C2C076000EB4951 /* NumberPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179432C2C076000EB4951 /* NumberPage.swift */; };
 		D4E179502C2C076000EB4951 /* TimePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179452C2C076000EB4951 /* TimePage.swift */; };
@@ -52,7 +55,7 @@
 /* Begin PBXBuildRule section */
 		D41703A22C35A77000C494C5 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
+			compilerSpec = com.apple.compilers.llvm.clang.1_0;
 			fileType = text.plist;
 			inputFiles = (
 			);
@@ -64,8 +67,8 @@
 /* End PBXBuildRule section */
 
 /* Begin PBXFileReference section */
-		D40503092C36C454005A9F1E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../Downloads/GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
-		D4E179152C2C072D00EB4951 /* .app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = .app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D4E179152C2C072D00EB4951 /* Queuify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Queuify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E179182C2C072D00EB4951 /* QueueApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueApp.swift; sourceTree = "<group>"; };
 		D4E1791C2C2C072E00EB4951 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D4E179252C2C072F00EB4951 /* QueueTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -138,9 +141,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D46595D02C36F6C9008FDA29 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		D4E1790C2C2C072D00EB4951 = {
 			isa = PBXGroup;
 			children = (
+				D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */,
 				D4E179172C2C072D00EB4951 /* Queue */,
 				D4E179282C2C072F00EB4951 /* QueueTests */,
 				D4E179322C2C072F00EB4951 /* QueueUITests */,
@@ -151,7 +162,7 @@
 		D4E179162C2C072D00EB4951 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D4E179152C2C072D00EB4951 /* .app */,
+				D4E179152C2C072D00EB4951 /* Queuify.app */,
 				D4E179252C2C072F00EB4951 /* QueueTests.xctest */,
 				D4E1792F2C2C072F00EB4951 /* QueueUITests.xctest */,
 			);
@@ -161,7 +172,7 @@
 		D4E179172C2C072D00EB4951 /* Queue */ = {
 			isa = PBXGroup;
 			children = (
-				D40503092C36C454005A9F1E /* GoogleService-Info.plist */,
+				D46595D02C36F6C9008FDA29 /* Preview Content */,
 				D4E179492C2C076000EB4951 /* CoreDataManager.swift */,
 				D4E179582C2C093500EB4951 /* WelcomePage.swift */,
 				D4E179472C2C076000EB4951 /* DestinationManager.swift */,
@@ -174,16 +185,8 @@
 				D4E179452C2C076000EB4951 /* TimePage.swift */,
 				D4E179182C2C072D00EB4951 /* QueueApp.swift */,
 				D4E1791C2C2C072E00EB4951 /* Assets.xcassets */,
-				D4E1791E2C2C072E00EB4951 /* Preview Content */,
 			);
 			path = Queue;
-			sourceTree = "<group>";
-		};
-		D4E1791E2C2C072E00EB4951 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		D4E179282C2C072F00EB4951 /* QueueTests */ = {
@@ -251,7 +254,7 @@
 				D4E179932C2C0E3100EB4951 /* FirebaseVertexAI-Preview */,
 			);
 			productName = Queue;
-			productReference = D4E179152C2C072D00EB4951 /* .app */;
+			productReference = D4E179152C2C072D00EB4951 /* Queuify.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D4E179242C2C072F00EB4951 /* QueueTests */ = {
@@ -294,7 +297,7 @@
 		D4E1790D2C2C072D00EB4951 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = 1;
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
@@ -311,7 +314,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D4E179102C2C072D00EB4951 /* Build configuration list for PBXProject "Queue-Latest" */;
+			buildConfigurationList = D4E179102C2C072D00EB4951 /* Build configuration list for PBXProject "Queue" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -340,6 +343,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D41193572C36DB2D00A56354 /* Assets.xcassets in Resources */,
+				D46595CC2C36F0B7008FDA29 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +351,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D46595CD2C36F1C2008FDA29 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +359,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D46595CF2C36F1C3008FDA29 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,7 +527,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Queue/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = P6PV2R9443;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -537,8 +543,10 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = JenniferZhao.Queuify;
+				PRODUCT_NAME = Queuify;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
+				SYMROOT = build;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -550,7 +558,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Queue/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = P6PV2R9443;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -566,6 +574,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = JenniferZhao.Queuify;
+				PRODUCT_NAME = Queuify;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -647,14 +656,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D4E179102C2C072D00EB4951 /* Build configuration list for PBXProject "Queue-Latest" */ = {
+		D4E179102C2C072D00EB4951 /* Build configuration list for PBXProject "Queue" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D4E179372C2C072F00EB4951 /* Debug */,
 				D4E179382C2C072F00EB4951 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		D4E179392C2C072F00EB4951 /* Build configuration list for PBXNativeTarget "Queue" */ = {
 			isa = XCConfigurationList;
@@ -663,7 +672,7 @@
 				D4E1793B2C2C072F00EB4951 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		D4E1793C2C2C072F00EB4951 /* Build configuration list for PBXNativeTarget "QueueTests" */ = {
 			isa = XCConfigurationList;
@@ -672,7 +681,7 @@
 				D4E1793E2C2C072F00EB4951 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		D4E1793F2C2C072F00EB4951 /* Build configuration list for PBXNativeTarget "QueueUITests" */ = {
 			isa = XCConfigurationList;
@@ -681,7 +690,7 @@
 				D4E179412C2C072F00EB4951 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 

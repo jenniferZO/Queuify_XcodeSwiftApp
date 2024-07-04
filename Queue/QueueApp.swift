@@ -19,9 +19,17 @@ class RefreshManager: ObservableObject {
         shouldRefresh.toggle()
     }
 }
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
 
+    return true
+  }
+}
 @main
-struct MyApp: App {
+
+struct YourApp: App {
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
 
@@ -33,16 +41,6 @@ struct MyApp: App {
         }
     }
 }
-class AppDelegate: UIResponder, UIApplicationDelegate {
 
-  var window: UIWindow?
 
-  func application(_ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions:
-                   [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-    FirebaseApp.configure()
-
-    return true
-  }
-}
 
