@@ -7,16 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D404C4DD2C3FBC4800B2597B /* CoreData.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D404C4DB2C3FBC4800B2597B /* CoreData.xcdatamodeld */; };
+		D404C4E02C3FBD6400B2597B /* UserEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D404C4DE2C3FBD6400B2597B /* UserEntity+CoreDataClass.swift */; };
+		D404C4E12C3FBD6400B2597B /* UserEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D404C4DF2C3FBD6400B2597B /* UserEntity+CoreDataProperties.swift */; };
+		D404C4E42C3FC26D00B2597B /* CommentEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = D404C4E22C3FC26D00B2597B /* CommentEntity+CoreDataClass.swift */; };
+		D404C4E52C3FC26D00B2597B /* CommentEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = D404C4E32C3FC26D00B2597B /* CommentEntity+CoreDataProperties.swift */; };
 		D41193572C36DB2D00A56354 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D4E1791C2C2C072E00EB4951 /* Assets.xcassets */; };
 		D46595CC2C36F0B7008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
 		D46595CD2C36F1C2008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
 		D46595CF2C36F1C3008FDA29 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */; };
+		D4DFDF642C3D5BF600710560 /* QueueDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DFDF632C3D5BF600710560 /* QueueDisplay.swift */; };
+		D4DFDF662C3D5C1D00710560 /* InQueuePage2.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DFDF652C3D5C1D00710560 /* InQueuePage2.swift */; };
 		D4E179192C2C072D00EB4951 /* QueueApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179182C2C072D00EB4951 /* QueueApp.swift */; };
-		D4E1794E2C2C076000EB4951 /* NumberPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179432C2C076000EB4951 /* NumberPage.swift */; };
-		D4E179502C2C076000EB4951 /* TimePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179452C2C076000EB4951 /* TimePage.swift */; };
 		D4E179512C2C076000EB4951 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179462C2C076000EB4951 /* Package.swift */; };
 		D4E179522C2C076000EB4951 /* DestinationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179472C2C076000EB4951 /* DestinationManager.swift */; };
-		D4E179532C2C076000EB4951 /* InQueuePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179482C2C076000EB4951 /* InQueuePage.swift */; };
 		D4E179542C2C076000EB4951 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E179492C2C076000EB4951 /* CoreDataManager.swift */; };
 		D4E179552C2C076000EB4951 /* DestinationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E1794A2C2C076000EB4951 /* DestinationPage.swift */; };
 		D4E179562C2C076000EB4951 /* HomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E1794B2C2C076000EB4951 /* HomePage.swift */; };
@@ -52,22 +56,15 @@
 		D4E179942C2C0E3100EB4951 /* FirebaseVertexAI-Preview in Frameworks */ = {isa = PBXBuildFile; productRef = D4E179932C2C0E3100EB4951 /* FirebaseVertexAI-Preview */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildRule section */
-		D41703A22C35A77000C494C5 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.llvm.clang.1_0;
-			fileType = text.plist;
-			inputFiles = (
-			);
-			isEditable = 1;
-			outputFiles = (
-			);
-			script = "# builtin-copyPlist\n";
-		};
-/* End PBXBuildRule section */
-
 /* Begin PBXFileReference section */
+		D404C4DC2C3FBC4800B2597B /* CoreData.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreData.xcdatamodel; sourceTree = "<group>"; };
+		D404C4DE2C3FBD6400B2597B /* UserEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		D404C4DF2C3FBD6400B2597B /* UserEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		D404C4E22C3FC26D00B2597B /* CommentEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommentEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		D404C4E32C3FC26D00B2597B /* CommentEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CommentEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		D4DFDF632C3D5BF600710560 /* QueueDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueDisplay.swift; sourceTree = "<group>"; };
+		D4DFDF652C3D5C1D00710560 /* InQueuePage2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InQueuePage2.swift; sourceTree = "<group>"; };
 		D4E179152C2C072D00EB4951 /* Queuify.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Queuify.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E179182C2C072D00EB4951 /* QueueApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueApp.swift; sourceTree = "<group>"; };
 		D4E1791C2C2C072E00EB4951 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -76,11 +73,8 @@
 		D4E1792F2C2C072F00EB4951 /* QueueUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4E179332C2C072F00EB4951 /* QueueUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueUITests.swift; sourceTree = "<group>"; };
 		D4E179352C2C072F00EB4951 /* QueueUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		D4E179432C2C076000EB4951 /* NumberPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = NumberPage.swift; path = "../../../Queue-main/NumberPage.swift"; sourceTree = "<group>"; };
-		D4E179452C2C076000EB4951 /* TimePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimePage.swift; path = "../../../Queue-main/TimePage.swift"; sourceTree = "<group>"; };
 		D4E179462C2C076000EB4951 /* Package.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Package.swift; path = "../../../Queue-main/Package.swift"; sourceTree = "<group>"; };
 		D4E179472C2C076000EB4951 /* DestinationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DestinationManager.swift; path = "../../../Queue-main/DestinationManager.swift"; sourceTree = "<group>"; };
-		D4E179482C2C076000EB4951 /* InQueuePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = InQueuePage.swift; path = "../../../Queue-main/InQueuePage.swift"; sourceTree = "<group>"; };
 		D4E179492C2C076000EB4951 /* CoreDataManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataManager.swift; path = "../../../Queue-main/CoreDataManager.swift"; sourceTree = "<group>"; };
 		D4E1794A2C2C076000EB4951 /* DestinationPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DestinationPage.swift; path = "../../../Queue-main/DestinationPage.swift"; sourceTree = "<group>"; };
 		D4E1794B2C2C076000EB4951 /* HomePage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = HomePage.swift; path = "../../../Queue-main/HomePage.swift"; sourceTree = "<group>"; };
@@ -151,6 +145,10 @@
 		D4E1790C2C2C072D00EB4951 = {
 			isa = PBXGroup;
 			children = (
+				D404C4E22C3FC26D00B2597B /* CommentEntity+CoreDataClass.swift */,
+				D404C4E32C3FC26D00B2597B /* CommentEntity+CoreDataProperties.swift */,
+				D404C4DE2C3FBD6400B2597B /* UserEntity+CoreDataClass.swift */,
+				D404C4DF2C3FBD6400B2597B /* UserEntity+CoreDataProperties.swift */,
 				D46595CB2C36F0A9008FDA29 /* GoogleService-Info.plist */,
 				D4E179172C2C072D00EB4951 /* Queue */,
 				D4E179282C2C072F00EB4951 /* QueueTests */,
@@ -178,13 +176,13 @@
 				D4E179472C2C076000EB4951 /* DestinationManager.swift */,
 				D4E1794A2C2C076000EB4951 /* DestinationPage.swift */,
 				D4E1794B2C2C076000EB4951 /* HomePage.swift */,
-				D4E179482C2C076000EB4951 /* InQueuePage.swift */,
-				D4E179432C2C076000EB4951 /* NumberPage.swift */,
 				D4E179462C2C076000EB4951 /* Package.swift */,
 				D4E1794C2C2C076000EB4951 /* StartQueuePage.swift */,
-				D4E179452C2C076000EB4951 /* TimePage.swift */,
 				D4E179182C2C072D00EB4951 /* QueueApp.swift */,
 				D4E1791C2C2C072E00EB4951 /* Assets.xcassets */,
+				D4DFDF632C3D5BF600710560 /* QueueDisplay.swift */,
+				D4DFDF652C3D5C1D00710560 /* InQueuePage2.swift */,
+				D404C4DB2C3FBC4800B2597B /* CoreData.xcdatamodeld */,
 			);
 			path = Queue;
 			sourceTree = "<group>";
@@ -218,7 +216,6 @@
 				D4E179122C2C072D00EB4951 /* Frameworks */,
 			);
 			buildRules = (
-				D41703A22C35A77000C494C5 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -371,15 +368,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				D4E179522C2C076000EB4951 /* DestinationManager.swift in Sources */,
-				D4E179532C2C076000EB4951 /* InQueuePage.swift in Sources */,
 				D4E179552C2C076000EB4951 /* DestinationPage.swift in Sources */,
-				D4E1794E2C2C076000EB4951 /* NumberPage.swift in Sources */,
 				D4E179512C2C076000EB4951 /* Package.swift in Sources */,
+				D404C4DD2C3FBC4800B2597B /* CoreData.xcdatamodeld in Sources */,
+				D404C4E42C3FC26D00B2597B /* CommentEntity+CoreDataClass.swift in Sources */,
+				D404C4E52C3FC26D00B2597B /* CommentEntity+CoreDataProperties.swift in Sources */,
 				D4E179572C2C076000EB4951 /* StartQueuePage.swift in Sources */,
 				D4E179562C2C076000EB4951 /* HomePage.swift in Sources */,
-				D4E179502C2C076000EB4951 /* TimePage.swift in Sources */,
+				D4DFDF642C3D5BF600710560 /* QueueDisplay.swift in Sources */,
+				D4DFDF662C3D5C1D00710560 /* InQueuePage2.swift in Sources */,
 				D4E179192C2C072D00EB4951 /* QueueApp.swift in Sources */,
 				D4E179592C2C093500EB4951 /* WelcomePage.swift in Sources */,
+				D404C4E02C3FBD6400B2597B /* UserEntity+CoreDataClass.swift in Sources */,
+				D404C4E12C3FBD6400B2597B /* UserEntity+CoreDataProperties.swift in Sources */,
 				D4E179542C2C076000EB4951 /* CoreDataManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -404,6 +405,7 @@
 		D4E179372C2C072F00EB4951 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -467,6 +469,7 @@
 		D4E179382C2C072F00EB4951 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -527,6 +530,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = P6PV2R9443;
 				ENABLE_PREVIEWS = YES;
@@ -558,6 +562,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = P6PV2R9443;
 				ENABLE_PREVIEWS = YES;
@@ -847,6 +852,20 @@
 			productName = "FirebaseVertexAI-Preview";
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		D404C4DB2C3FBC4800B2597B /* CoreData.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				D404C4DC2C3FBC4800B2597B /* CoreData.xcdatamodel */,
+			);
+			currentVersion = D404C4DC2C3FBC4800B2597B /* CoreData.xcdatamodel */;
+			name = CoreData.xcdatamodeld;
+			path = /Users/oxfzhaoj1/Documents/Queue/Queue/Queue/CoreData.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = D4E1790D2C2C072D00EB4951 /* Project object */;
 }

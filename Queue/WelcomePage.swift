@@ -4,143 +4,101 @@
 //
 //  Created by Zhao, Jennifer (OXF) Student on 26/06/2024.
 //
-
 import SwiftUI
-import Firebase
-import FirebaseDatabase
 
 struct User {
-    let userID: String
-    var destination: String // Make destination mutable
-    var peopleJoining: Int // Make peopleJoining mutable
-    // Add more properties as needed
+    var peopleJoining: Int
+    var userID: String
+    var destination: String
 }
 
-struct ContentView: View {
-    @ObservedObject var refreshManager: RefreshManager
-    @State private var queuePosition = CoreDataManager.shared.getQueueCount()
-    @State private var peopleJoining = CoreDataManager.shared.getPeopleJoining() ?? 0
-    @State private var user: User?
 
+struct WelcomePage: View {
+    @ObservedObject var refreshManager: RefreshManager
+    @State private var user: User?
+    @State private var navigateToHomePage = false
+    @State private var navigateToStartPage = false
+    
+    private let coreDataManager = CoreDataManager.shared
+    
     // Public initializer
     init(refreshManager: RefreshManager) {
         self.refreshManager = refreshManager
     }
-
+    
     var body: some View {
         NavigationView {
             VStack {
                 Spacer()
-
                 Text("👋 Welcome!") // Waving hand emoji with Welcome text
-
                 Spacer()
-
-                if let user = user {
-                    NavigationLink(destination: HomePage(refreshManager: refreshManager, userID: user.userID)) {
-                        HStack {
-                            Spacer()
-                            Text("Join a Queue")
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    generateAndSaveUser()
-                                }
-                        }
-                    }
-                } else {
-                    Button(action: {
-                        generateAndSaveUser()
-                    }) {
-                        HStack {
-                            Spacer()
-                            Text("Join a Queue")
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                                .padding(.horizontal)
-                        }
+                
+                NavigationLink(destination: HomePage(refreshManager: refreshManager, userID: user?.userID ?? ""), isActive: $navigateToHomePage) {
+                    EmptyView()
+                }
+                JoinQueueButton(title: "Join a Queue") {
+                    generateAndSaveUser {
+                        // Navigate only after user is saved
+                        navigateToHomePage = true
                     }
                 }
-
-                NavigationLink(destination: StartQueuePage()) {
-                    HStack {
-                        Spacer()
-                        Text("Start a Queue")
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .padding(.horizontal)
-                    }
+                
+                NavigationLink(destination: StartQueuePage(), isActive: $navigateToStartPage) {
+                    EmptyView()
                 }
-
+                JoinQueueButton(title: "Start a Queue", backgroundColor: .green) {
+                    navigateToStartPage = true
+                    // Handle action if needed
+                }
+                
                 Spacer()
             }
+            .onAppear {
+                if let userID = coreDataManager.getUserID() {
+                    self.user = User(peopleJoining: 0, userID: userID, destination: "")
+                }
+            }
             .onReceive(refreshManager.$shouldRefresh) { _ in
-                // Update queuePosition when returning from InQueuePage
-                queuePosition = CoreDataManager.shared.getQueueCount()
+                // Update any necessary state here when refreshing
             }
         }
         .navigationBarHidden(true)
     }
-
+    
     // Function to generate a unique 8-digit user ID
     func generateUniqueUserID() -> String {
-        let userID = String(format: "%08d", arc4random_uniform(100_000_000))
+        let userID = String(format: "%08d", Int.random(in: 0..<100000000))
         return userID
     }
-
-    // Function to generate and save user to Firebase
-    func generateAndSaveUser() {
+    
+    func generateAndSaveUser(completion: @escaping () -> Void) {
         let userID = generateUniqueUserID()
-        let destination = "" // Initial empty string
-        let peopleJoining = 0 // Initial 0
+        coreDataManager.saveUserIDToCoreData(userID: userID) // Save userID to Core Data
+        let newUser = User(peopleJoining: 0, userID: userID, destination: "")
+        self.user = newUser
+        completion()
+    }
+}
 
-        // Create user object with placeholder values
-        var newUser = User(userID: userID, destination: destination, peopleJoining: peopleJoining)
-
-        // Save user to Firebase
-        let ref = Database.database().reference().child("Users").child(userID)
-        ref.setValue([
-            "userID": newUser.userID,
-            "destination": newUser.destination,
-            "peopleJoining": newUser.peopleJoining
-        ]) { error, _ in
-            if let error = error {
-                print("Error saving user to Firebase: \(error.localizedDescription)")
-            } else {
-                print("User \(newUser.userID) saved successfully.")
-                self.user = newUser // Set the generated user
-            }
-        }
-
-        // Update user destination and peopleJoining later
-        // For example:
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            // Simulating a delay, replace with actual logic
-            newUser.destination = "Shop"
-            newUser.peopleJoining = 1
-            
-            // Update Firebase with new values
-            ref.updateChildValues([
-                "destination": newUser.destination,
-                "peopleJoining": newUser.peopleJoining
-            ]) { error, _ in
-                if let error = error {
-                    print("Error updating destination and peopleJoining in Firebase: \(error.localizedDescription)")
-                } else {
-                    print("Destination and peopleJoining updated successfully.")
-                    self.user = newUser // Update local state with new values
-                }
+// Custom Button View for JoinQueueButton
+struct JoinQueueButton: View {
+    var title: String
+    var backgroundColor: Color = .blue
+    var action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Spacer()
+                Text(title)
+                    .foregroundColor(.white)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(backgroundColor)
+                    .cornerRadius(10)
+                    .padding(.horizontal)
             }
         }
     }
 }
+
