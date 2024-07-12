@@ -1,19 +1,36 @@
-import Foundation
+import Combine
+import Firebase
 
-struct DestinationManager {
+class DestinationManager: ObservableObject {
     static let shared = DestinationManager()
     
-    // List of destination variables
-    let destinations: [String] = ["Shop", "Museum", "Attraction"]
+    private let firestoreDB = Firestore.firestore()
+    @Published var destinations: [String] = []
     
-    // Function to search for a destination
+    private init() {
+        fetchDestinationsFromFirestore()
+    }
+    
     func searchDestination(_ searchText: String) -> String? {
-        for destination in destinations {
-            if destination.lowercased() == searchText.lowercased() {
-                return destination
+        return destinations.first { $0.lowercased() == searchText.lowercased() }
+    }
+    
+    func fetchDestinationsFromFirestore() {
+        firestoreDB.collection("destinations").getDocuments { [weak self] querySnapshot, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error fetching documents: \(error)")
+                return
             }
+            
+            guard let documents = querySnapshot?.documents else {
+                print("No documents")
+                return
+            }
+            
+            self.destinations = documents.map { $0.documentID }
+            print("Fetched destinations: \(self.destinations)")
         }
-        return nil // Destination not found
     }
 }
-
