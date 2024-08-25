@@ -1,75 +1,83 @@
+
+import Foundation
 import CoreData
 
 class CoreDataManager {
     static let shared = CoreDataManager()
     
-    private var _destinations: [String] = []
-    private var userComments: [String] = [] // Array to store user comments
-    private var peopleJoining: Int = 0
-    private var mobileNumber: String?
-    private var selectedTime: String?
-    private var selectedDate: String?
-    public var queueCount: Int = 0
+    private init() {}
     
-    var destinations: [String] {
-        return _destinations
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "CoreData") // Replace with your data model name
+        container.loadPersistentStores { _, error in
+            if let error = error {
+                fatalError("Failed to load Core Data stack: \(error)")
+            }
+        }
+        return container
+    }()
+    
+    func saveUserIDToCoreData(userID: String) {
+        let context = persistentContainer.viewContext
+        
+        // Fetch and delete all existing UserEntity objects
+        let fetchRequest: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            for user in users {
+                context.delete(user)
+            }
+            
+            // Save the new userID
+            let user = UserEntity(context: context)
+            user.userIDE = userID
+            try context.save()
+        } catch {
+            print("Failed to save userID in Core Data: \(error.localizedDescription)")
+        }
     }
     
-    func saveDestination(_ destinationName: String) {
-        _destinations.append(destinationName)
+    func getUserID() -> String? {
+        let context = persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<UserEntity> = UserEntity.fetchRequest()
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            return users.first?.userIDE
+        } catch {
+            print("Failed to fetch userID from Core Data: \(error.localizedDescription)")
+            return nil
+        }
     }
     
-    func searchDestinations(for searchText: String) -> [String] {
-        return _destinations.filter { $0.lowercased().contains(searchText.lowercased()) }
-    }
+    // MARK: - Comment Operations
     
-    func savePeopleJoining(_ count:Int){
-        peopleJoining = count
-    }
-    
-    func getPeopleJoining()-> Int? {
-        return peopleJoining
-    }
-    
-    func saveMobileNumber(_ number: String) {
-        mobileNumber = number
-    }
-    
-    func getMobileNumber() -> String? {
-        return mobileNumber
-    }
-    
-    func saveSelectedTime(_ time: String) {
-        selectedTime = time
-    }
-    
-    func getSelectedTime() -> String? {
-        return selectedTime
-    }
-    
-    func saveSelectedDate(_ date: String) {
-        selectedDate = date
-    }
-    
-    func getSelectedDate() -> String? {
-        return selectedDate
-    }
-    
-    func saveQueueCount(_ count: Int) {
-        queueCount = count
-    }
-    
-    func getQueueCount() -> Int {
-        return queueCount
-    }
-    
-    // Save user comment
     func saveUserComment(_ comment: String) {
-        userComments.append(comment)
+        let context = persistentContainer.viewContext
+        context.perform {
+            let commentEntity = CommentEntity(context: context)
+            commentEntity.commentTextE = comment
+            
+            do {
+                try context.save()
+            } catch {
+                print("Failed to save comment in Core Data: \(error.localizedDescription)")
+            }
+        }
     }
     
-    // Retrieve all user comments
     func getAllUserComments() -> [String] {
-        return userComments
+        let context = persistentContainer.viewContext
+        let fetchRequest: NSFetchRequest<CommentEntity> = CommentEntity.fetchRequest()
+        
+        do {
+            let comments = try context.fetch(fetchRequest)
+            return comments.map { $0.commentTextE ?? "" }
+        } catch {
+            print("Failed to fetch comments from Core Data: \(error.localizedDescription)")
+            return []
+        }
     }
 }
+
