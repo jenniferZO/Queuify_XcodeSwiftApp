@@ -1,11 +1,14 @@
 import SwiftUI
+import Firebase
+import FirebaseFirestore
 
 struct DestinationPage: View {
     @ObservedObject var refreshManager: RefreshManager
     @State private var isIndividualSelected = false
     @State private var isGroupSelected = false
     @State private var numberOfPeopleInGroup = 0
-    var destination: String // Change the destination type to String
+    var destination: String
+    var userID: String
     
     var body: some View {
         NavigationView {
@@ -77,7 +80,7 @@ struct DestinationPage: View {
                 
                 // Conditional NavigationLink
                 if isDestinationSelected() {
-                    NavigationLink(destination: NumberPage(refreshManager: refreshManager)) {
+                    NavigationLink(destination: QueueDisplay(viewContext: CoreDataManager.shared.persistentContainer.viewContext, refreshManager: refreshManager, userID: userID)) {
                         HStack {
                             Spacer()
                             Text("Next")
@@ -93,14 +96,12 @@ struct DestinationPage: View {
                     .onDisappear {
                         // Save the number of people joining the queue and queue count when the view disappears
                         savePeopleJoiningAndQueueCount()
+                        updateCustomerDayCount(peopleJoining: isIndividualSelected ? 1 : numberOfPeopleInGroup)
                     }
                 }
             }
         }
         .navigationBarHidden(true)
-        .onAppear {
-            saveDestinationToCoreData() // Save the selected destination to Core Data when the view appears
-        }
     }
     
     // Function to check if a destination is selected
@@ -116,20 +117,43 @@ struct DestinationPage: View {
         return false
     }
     
-    // Function to save the selected destination to Core Data
-    private func saveDestinationToCoreData() {
-        CoreDataManager.shared.saveDestination(destination)
+    // Function to save the number of people joining the queue and increment queue count to Firestore
+    private func savePeopleJoiningAndQueueCount() {
+        let peopleJoining = isIndividualSelected ? 1 : numberOfPeopleInGroup
+        // Update peopleJoining in Firestore
+        updatePeopleJoiningInFirestore(peopleJoining)
     }
     
-    // Function to save the number of people joining the queue and increment queue count to Core Data
-    private func savePeopleJoiningAndQueueCount() {
-        // Save the number of people joining the queue
-        CoreDataManager.shared.savePeopleJoining(isIndividualSelected ? 1 : numberOfPeopleInGroup)
+    // Function to update peopleJoining field under the user document in Firestore
+    private func updatePeopleJoiningInFirestore(_ peopleJoining: Int) {
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(userID)
         
-        // Increment the queue count
-        var queueCount = CoreDataManager.shared.getQueueCount()
-        queueCount += (isIndividualSelected ? 1 : numberOfPeopleInGroup)
-        CoreDataManager.shared.saveQueueCount(queueCount)
+        userRef.updateData(["PeopleJoining": peopleJoining]) { error in
+            if let error = error {
+                print("Error updating peopleJoining in Firestore: \(error.localizedDescription)")
+            } else {
+                print("People joining updated successfully for user \(userID).")
+            }
+        }
+    }
+    
+    private func updateCustomerDayCount(peopleJoining: Int) {
+        let db = Firestore.firestore()
+        let destinationRef = db.collection("Destinations").document(destination)
+        
+        destinationRef.updateData([
+            "CustomerDayCount": FieldValue.increment(Int64(peopleJoining))
+        ]) { error in
+            if let error = error {
+                print("Error updating CustomerDayCount in Firestore: \(error.localizedDescription)")
+            } else {
+                print("CustomerDayCount updated successfully for destination \(destination).")
+            }
+        }
+        
+        // Update the local count managed by CustomerDayCountManager
+        CustomerDayCountManager.shared.customerDayCount += peopleJoining
     }
 }
-
+    
