@@ -13,7 +13,8 @@ class CustomerDayCountManager {
         // Ensure the count is checked and reset if needed on initialization
         checkAndResetIfNeeded()
         
-        // Schedule a background task to reset the count every 24 hours
+        
+        // Schedule a background task to reset the count at the next 6 PM
         scheduleBackgroundResetTask()
     }
 
@@ -27,11 +28,52 @@ class CustomerDayCountManager {
             updateCustomerDayCountInFirestore(newValue)
         }
     }
+    
+    // Function to set initial customerDayCount for a new destination document
+     func setInitialCustomerDayCount(for documentID: String) {
+         let db = Firestore.firestore()
+         let destinationRef = db.collection("Destinations").document(documentID)
+         
+         // Check if the document exists and set customerDayCount to 0 if it's new
+         destinationRef.getDocument { document, error in
+             if let document = document, !document.exists {
+                 destinationRef.setData(["CustomerDayCount": 0], merge: true) { error in
+                     if let error = error {
+                         print("Error setting initial CustomerDayCount: \(error.localizedDescription)")
+                     } else {
+                         print("CustomerDayCount initialized to 0 for new destination.")
+                     }
+                 }
+             }
+         }
+     }
 
     private func checkAndResetIfNeeded() {
         let now = Date()
+        let calendar = Calendar.current
+        
+        // Get the next 6 PM London time
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
+        components.hour = 18
+        components.minute = 0
+        components.second = 0
+        components.timeZone = TimeZone(identifier: "Europe/London") // Set the time zone to London
+        
+        guard let today6PM = calendar.date(from: components) else {
+            return
+        }
+        
+        // If the current time is past 6 PM, calculate the next day's 6 PM
+        let nextResetDate: Date
+        if now >= today6PM {
+            nextResetDate = calendar.date(byAdding: .day, value: 1, to: today6PM)!
+        } else {
+            nextResetDate = today6PM
+        }
+
         if let lastResetDate = userDefaults.object(forKey: lastResetDateKey) as? Date {
-            if now.timeIntervalSince(lastResetDate) >= 86400 { // 86400 seconds = 24 hours
+            // If the last reset was before the most recent 6 PM, reset the count
+            if lastResetDate < today6PM && now >= today6PM {
                 resetCustomerDayCount()
             }
         } else {
@@ -47,9 +89,34 @@ class CustomerDayCountManager {
     }
     
     private func scheduleBackgroundResetTask() {
-        // Schedule a task to reset customerDayCount every 24 hours
-        Timer.scheduledTimer(withTimeInterval: 86400, repeats: true) { _ in
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Calculate the next 6 PM London time
+        var components = calendar.dateComponents([.year, .month, .day], from: now)
+        components.hour = 18
+        components.minute = 0
+        components.second = 0
+        components.timeZone = TimeZone(identifier: "Europe/London") // Set the time zone to London
+        
+        guard let today6PM = calendar.date(from: components) else {
+            return
+        }
+        
+        let nextResetDate: Date
+        if now >= today6PM {
+            nextResetDate = calendar.date(byAdding: .day, value: 1, to: today6PM)!
+        } else {
+            nextResetDate = today6PM
+        }
+        
+        let timeInterval = nextResetDate.timeIntervalSince(now)
+        
+        Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: false) { _ in
             self.resetCustomerDayCount()
+            
+            // Reschedule the timer for the next 6 PM after resetting
+            self.scheduleBackgroundResetTask()
         }
     }
     
@@ -66,3 +133,4 @@ class CustomerDayCountManager {
         }
     }
 }
+
