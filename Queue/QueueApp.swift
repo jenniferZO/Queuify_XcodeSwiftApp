@@ -2,6 +2,8 @@ import SwiftUI
 import UIKit
 import FirebaseCore
 import CoreData
+import UserNotifications
+
 
 class RefreshManager: ObservableObject {
     @Published var shouldRefresh = false
@@ -11,7 +13,7 @@ class RefreshManager: ObservableObject {
     }
 }
 
-class AppDelegate: NSObject, UIApplicationDelegate {
+class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     var window: UIWindow?
     
     lazy var persistentContainer: NSPersistentContainer = {
@@ -39,10 +41,26 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
+        
+        // Configure notifications
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Notification permission request error: \(error.localizedDescription)")
+            } else {
+                print("Notification permission granted: \(granted)")
+            }
+        }
+        
+        UNUserNotificationCenter.current().delegate = self
+        
         return true
     }
+    
+    // Handle notification presentation when the app is in the foreground
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound])
+    }
 }
-
 @main
 struct YourApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
@@ -58,3 +76,5 @@ struct YourApp: App {
         }
     }
 }
+
+
