@@ -16,7 +16,7 @@ class DestinationManager: ObservableObject {
     }
     
     func fetchDestinationsFromFirestore() {
-        firestoreDB.collection("destinations").getDocuments { [weak self] querySnapshot, error in
+        firestoreDB.collection("Destinations").getDocuments { [weak self] querySnapshot, error in
             guard let self = self else { return }
             
             if let error = error {
@@ -29,8 +29,9 @@ class DestinationManager: ObservableObject {
                 return
             }
             
-            self.destinations = documents.map { $0.documentID }
+            self.destinations = documents.map { $0.documentID } //adding documents to destinations list?
             print("Fetched destinations: \(self.destinations)")
         }
     }
 }
+
