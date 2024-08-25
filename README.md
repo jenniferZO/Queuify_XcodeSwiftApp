@@ -63,5 +63,5 @@ friends and families can experience a more enjoyable time with less waiting in t
 per person, regardless of how long they wait in line. The service fee is collected by the destination’s organization 
 upon entry and then forwarded. This will hopefully help gather funds to allow Queuify to re-invest and grow. 
 
-TestFlight link: (designed for iphones) 
+iCloud video  link: https://share.icloud.com/photos/0d0SDER8FCjSLxy1R3YXNi58A 
 
