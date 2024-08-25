@@ -2,23 +2,11 @@ import SwiftUI
 
 struct HomePage: View {
     @ObservedObject var refreshManager: RefreshManager
+    var userID: String
     @State private var searchText: String = ""
     @State private var searchResults: [String] = []
     
-    // Function to filter destinations based on search text
-    public func filterDestinations() {
-        if searchText.isEmpty {
-            // If search text is empty, show all destinations
-            searchResults = DestinationManager.shared.destinations
-        } else {
-            // Search destinations using DestinationManager
-            if let result = DestinationManager.shared.searchDestination(searchText) {
-                searchResults = [result]
-            } else {
-                searchResults = []
-            }
-        }
-    }
+    @EnvironmentObject var destinationManager: DestinationManager
     
     var body: some View {
         NavigationView {
@@ -28,7 +16,7 @@ struct HomePage: View {
                 HStack {
                     Spacer()
                     TextField("🔎", text: $searchText, onCommit: {
-                        filterDestinations() // Filter destinations when user presses return/Enter
+                        filterDestinations()
                     })
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 10)
@@ -39,7 +27,7 @@ struct HomePage: View {
                 }
                 Spacer()
                 
-                NavigationLink(destination: SearchResultsPage(refreshManager: refreshManager, searchResults: searchResults)) {
+                NavigationLink(destination: SearchResultsPage(refreshManager: refreshManager, userID: userID, searchResults: searchResults)) {
                     HStack {
                         Spacer()
                         Text("Search")
@@ -51,17 +39,38 @@ struct HomePage: View {
                             .padding(.horizontal)
                     }
                 }
-                .disabled(searchText.isEmpty) // Disable the search button if search text is empty
-                .navigationBarBackButtonHidden(true) // Hide navigation back button
+                .disabled(searchText.isEmpty)
+                .navigationBarBackButtonHidden(true)
             }
             Spacer()
+        }
+        .onAppear {
+            destinationManager.fetchDestinationsFromFirestore()
+        }
+    }
+    
+    private func filterDestinations() {
+        if searchText.isEmpty {
+            searchResults = destinationManager.destinations
+        } else {
+            if let result = destinationManager.searchDestination(searchText) {
+                searchResults = [result]
+            } else {
+                searchResults = []
+            }
         }
     }
 }
 
+import SwiftUI
+import FirebaseFirestore
+
 struct SearchResultsPage: View {
-    @ObservedObject var refreshManager: RefreshManager 
+    @ObservedObject var refreshManager: RefreshManager
+    var userID: String
     var searchResults: [String]
+    
+    private let db = Firestore.firestore()
     
     var body: some View {
         NavigationView {
@@ -73,7 +82,12 @@ struct SearchResultsPage: View {
                     Text("No match was found. Please try again.")
                 } else {
                     List(searchResults, id: \.self) { destination in
-                        NavigationLink(destination: DestinationPage(refreshManager: refreshManager, destination: destination)) {
+                        NavigationLink(
+                            destination: DestinationPage(refreshManager: refreshManager, destination: destination, userID: userID)
+                                .onAppear {
+                                    updateSelectedDestination(destination)
+                                }
+                        ) {
                             Text(destination)
                         }
                     }
@@ -82,5 +96,18 @@ struct SearchResultsPage: View {
         }
         .navigationBarHidden(true)
     }
+    
+    private func updateSelectedDestination(_ destination: String) {
+        let userRef = db.collection("users").document(userID)
+        
+        userRef.updateData([
+            "SelectedDestination": destination
+        ]) { error in
+            if let error = error {
+                print("Error updating document: \(error)")
+            } else {
+                print("Document successfully updated")
+            }
+        }
+    }
 }
-
