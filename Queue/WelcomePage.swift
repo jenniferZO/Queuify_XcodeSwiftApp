@@ -66,7 +66,7 @@ struct WelcomePage: View {
                 }
             )
             .background(
-                NavigationLink(destination: StartQueuePage(), isActive: $navigateToStartPage) {
+                NavigationLink(destination: StartQueuePage(refreshManager: refreshManager), isActive: $navigateToStartPage) {
                     EmptyView()
                 }
             )
@@ -190,3 +190,4 @@ struct ConsentPopup: View {
         }
     }
 }
+
