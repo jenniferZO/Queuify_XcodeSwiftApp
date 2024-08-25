@@ -1,43 +1,234 @@
 import SwiftUI
+import Firebase
+import UserNotifications
+
+class InQueueManager: ObservableObject {
+    @Published var myDestination: String = ""
+    @Published var queuePosition: Int = 0
+    private let db = Firestore.firestore()
+    
+    func fetchMyDestination() {
+        guard let userID = CoreDataManager.shared.getUserID() else {
+            print("User ID is nil according to fetchSelectedDestination")
+            return
+        }
+        
+        let userRef = db.collection("users").document(userID)
+        
+        userRef.getDocument { [weak self] snapshot, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("Error fetching user document in fetchSelectedDestination: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let userData = snapshot?.data() else {
+                print("User document not found in fetchSelectedDestination")
+                return
+            }
+            
+            if let selectedDestination = userData["SelectedDestination"] as? String {
+                DispatchQueue.main.async {
+                    self.myDestination = selectedDestination
+                    self.fetchQueuePosition()  // Fetch queue count after setting destination
+                }
+            } else {
+                print("SelectedDestination field not found in user document in fetchSelectedDestination")
+            }
+        }
+    }
+    
+    func fetchQueuePosition() {
+        guard !myDestination.isEmpty else {
+            print("Destination is empty in function fetchQueuePosition")
+            return
+        }
+        
+        guard let userID = CoreDataManager.shared.getUserID() else {
+            print("User ID is nil")
+            return
+        }
+        
+        let destinationRef = db.collection("Destinations").document(myDestination)
+        
+        destinationRef.addSnapshotListener { [weak self] snapshot, error in
+            guard let self = self else { return }
+            guard let data = snapshot?.data() else {
+                print("Error fetching destination document: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+            guard var queueList = data["QueueList"] as? [DocumentReference] else {
+                print("QueueList not found in destination document")
+                return
+            }
+            
+            if queueList.count > 1 {
+                queueList = Array(queueList.dropFirst())
+            } else {
+                self.queuePosition = 1
+                return
+            }
+            
+            var totalPeopleInQueue = 0
+            var foundUser = false
+            let group = DispatchGroup()
+            
+            for userRef in queueList {
+                group.enter()
+                userRef.getDocument { userSnapshot, error in
+                    if let error = error {
+                        print("Error fetching user document: \(error.localizedDescription)")
+                    } else if let userData = userSnapshot?.data(),
+                              let peopleJoining = userData["PeopleJoining"] as? Int {
+                        if userSnapshot?.documentID == userID {
+                            totalPeopleInQueue += peopleJoining + 1
+                            foundUser = true
+                        } else {
+                            totalPeopleInQueue += peopleJoining
+                        }
+                    }
+                    group.leave()
+                }
+            }
+            
+            group.notify(queue: .main) {
+                if foundUser {
+                    self.queuePosition = totalPeopleInQueue
+                }
+                
+                if self.queuePosition < 30 {
+                    self.sendNotification()
+                }
+            }
+        }
+    }
+    
+    func leaveQueue() {
+        guard let userID = CoreDataManager.shared.getUserID() else {
+            print("User ID is nil")
+            return
+        }
+
+        let usersRef = Firestore.firestore().collection("users").document(userID)
+        usersRef.getDocument { userSnapshot, error in
+            if let error = error {
+                print("Error fetching user document: \(error.localizedDescription)")
+                return
+            }
+
+            guard let userData = userSnapshot?.data(),
+                  let myDestination = userData["SelectedDestination"] as? String else {
+                print("User document does not exist or destination not retrieved")
+                return
+            }
+
+            let destinationsRef = Firestore.firestore().collection("Destinations").document(myDestination)
+            destinationsRef.getDocument { snapshot, error in
+                if let error = error {
+                    print("Error fetching destination document: \(error.localizedDescription)")
+                    return
+                }
+
+                guard let data = snapshot?.data(),
+                      var queueList = data["QueueList"] as? [DocumentReference] else {
+                    print("Queue list not found")
+                    return
+                }
+
+                let userRefPath = "users/\(userID)"
+                if let indexToRemove = queueList.firstIndex(where: { $0.path == userRefPath }) {
+                    queueList.remove(at: indexToRemove)
+
+                    destinationsRef.updateData(["QueueList": queueList]) { error in
+                        if let error = error {
+                            print("Error updating destination document: \(error.localizedDescription)")
+                            return
+                        }
+                        
+                        usersRef.delete { error in
+                            if let error = error {
+                                print("Error deleting user document: \(error.localizedDescription)")
+                            } else {
+                                print("User document deleted successfully.")
+                                self.queuePosition = 0
+                            }
+                        }
+                    }
+                } else {
+                    print("User reference not found in queueList.")
+                }
+            }
+        }
+    }
+
+    func sendNotification() {
+        let content = UNMutableNotificationContent()
+        content.title = "Queue Update"
+        content.body = "Your position in the queue is now \(queuePosition)."
+        content.sound = .default
+        
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Error adding notification: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    func requestNotificationPermission() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            if let error = error {
+                print("Notification permission request error: \(error.localizedDescription)")
+            } else {
+                print("Notification permission granted: \(granted)")
+            }
+        }
+        // Ensure the notification center delegate is set
+        center.delegate = UIApplication.shared.delegate as? UNUserNotificationCenterDelegate
+    }
+}
+import SwiftUI
 
 struct InQueuePage: View {
+    @StateObject private var inQueueManager = InQueueManager()
     @ObservedObject var refreshManager: RefreshManager
-    @State private var queuePosition = CoreDataManager.shared.getQueueCount()
-    @State private var peopleJoining = CoreDataManager.shared.getPeopleJoining() ?? 0
-    @State private var showingConfirmation = false // State for confirmation popup
-    @State private var showingReviewPopup = false // State for review popup
+    
+    @State private var showingNotificationPopup = false
+    @State private var showingConfirmation = false
+    @State private var showingReviewPopup = false
     @State private var userComment: String = ""
-    @State private var navigateToContentView = false // State for navigation
-    @State private var rating: Int = 0 // State for rating in the review popup
-    @State private var showingCommentsPopup = false // State for showing comments popup
+    @State private var navigateToContentView = false
+    @State private var rating: Int = 0
+    @State private var showingCommentsPopup = false
     
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottomTrailing) {
                 VStack {
-                    Text("You are in position \(queuePosition) of the line.")
+                    Text("You are in position \(inQueueManager.queuePosition) of the line for \(inQueueManager.myDestination).")
                         .padding()
-                    
-                    Text("Please click the refresh button below to see your current position.")
+                  
+                    Text("Please check this page frequently. When your queue position is 30 or less, make your way to the destination. Once you have entered, remember to press the 'Leave' button to officially exit the queue. Thank you!")
                         .font(.footnote)
+
                     
                     Spacer()
                     
                     Button(action: {
-                        // Show confirmation popup
                         showingConfirmation = true
                     }) {
-                        HStack {
-                            Text("Leave the Queue")
-                                .foregroundColor(.white)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                                .padding(.horizontal)
-                        }
+                        Text("Leave the Queue")
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .cornerRadius(10)
+                            .padding(.horizontal)
                     }
-                    .buttonStyle(PlainButtonStyle()) // To remove default button style
+                    .buttonStyle(PlainButtonStyle())
                     .alert(isPresented: $showingConfirmation) {
                         Alert(
                             title: Text("Are you sure you want to leave the queue?"),
@@ -49,25 +240,34 @@ struct InQueuePage: View {
                         )
                     }
                     
-                    // Conditional NavigationLink
-                    NavigationLink(destination: ContentView(refreshManager: refreshManager), isActive: $navigateToContentView) {
+                    NavigationLink(destination: WelcomePage(refreshManager: refreshManager), isActive: $navigateToContentView) {
                         EmptyView()
                     }
-                    .hidden() // Initially hidden
+                    .hidden()
                     
-                    // Review popup overlay
                     if showingReviewPopup {
-                        ReviewPopup(isPresented: $showingReviewPopup, navigateToContentView: $navigateToContentView, rating: $rating, userComment: $userComment)
+                        ReviewPopup(
+                            isPresented: $showingReviewPopup,
+                            navigateToContentView: $navigateToContentView,
+                            rating: $rating,
+                            userComment: $userComment
+                        )
                     }
                 }
                 .navigationBarHidden(true)
+                .onAppear {
+                    inQueueManager.fetchMyDestination()
+                    inQueueManager.requestNotificationPermission()
+                    showingNotificationPopup = true
+                }
+                .onChange(of: inQueueManager.queuePosition) { newValue in
+                    print("Queue position updated to \(newValue)")
+                }
                 .onReceive(refreshManager.$shouldRefresh) { _ in
-                    refreshQueuePosition()
+                    inQueueManager.fetchMyDestination()
                 }
                 
-                // Chat bubble icon
                 Button(action: {
-                    // Show comments popup
                     showingCommentsPopup = true
                 }) {
                     Image(systemName: "message.circle.fill")
@@ -76,147 +276,127 @@ struct InQueuePage: View {
                         .padding()
                 }
                 .buttonStyle(PlainButtonStyle())
-                .offset(x: -16, y: -50) // Adjust offset to position the chat icon above the 'Leave Queue' button
+                .offset(x: -16, y: -50)
                 
-                // Comments popup overlay
                 if showingCommentsPopup {
-                    CommentsPopup(isPresented: $showingCommentsPopup)
+                    CommentsPopup(isPresented: $showingCommentsPopup, userComment: $userComment)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .background(Color.black.opacity(0.4).edgesIgnoringSafeArea(.all))
                 }
             }
         }
     }
-    
-    func refreshQueuePosition() {
-        queuePosition = CoreDataManager.shared.getQueueCount()
-    }
-    
+
     func leaveQueue() {
-        // Subtract peopleJoining from queueCount
-        var queueCount = CoreDataManager.shared.getQueueCount()
-        queueCount = queueCount - peopleJoining
-        CoreDataManager.shared.saveQueueCount(queueCount)
-        
-        // Update queuePosition immediately
-        queuePosition = queueCount
+        inQueueManager.leaveQueue()
     }
-    
-    func ReviewPopup(isPresented: Binding<Bool>, navigateToContentView: Binding<Bool>, rating: Binding<Int>, userComment: Binding<String>) -> some View {
-        
-        return VStack(spacing: 20) {
+   
+    func ReviewPopup(
+        isPresented: Binding<Bool>,
+        navigateToContentView: Binding<Bool>,
+        rating: Binding<Int>,
+        userComment: Binding<String>
+    ) -> some View {
+        VStack(spacing: 20) {
             Text("Rate Your Experience")
                 .font(.headline)
+
             StarRatingView(rating: rating)
-            
-            Text("Please share your comments")
+
+            Text("Please share your comments and advice:")
                 .font(.subheadline)
                 .padding(.top, 10)
-            Text("and advice:")
-                .font(.subheadline)
-                .multilineTextAlignment(.leading)
-            
-            
+
             TextField("Enter your comment", text: userComment)
                 .frame(height: 100)
                 .background(Color.gray.opacity(0.1))
                 .cornerRadius(8)
                 .padding(.horizontal)
-            
+
             HStack {
                 Button(action: {
-                    // Handle the submit action
                     isPresented.wrappedValue = false
                     navigateToContentView.wrappedValue = true
-                    
-                    // Save user comment
+                    leaveQueue()
                     CoreDataManager.shared.saveUserComment(userComment.wrappedValue)
-                    
-                    // Optionally print or handle the user's rating and comment
-                    print("User's rating: \(rating.wrappedValue) out of 5")
-                    print("User's comment: \(userComment.wrappedValue)")
+                    print("User's rating: \(rating.wrappedValue), Comment: \(userComment.wrappedValue)")
+                    userComment.wrappedValue = ""
                 }) {
-                    Text("Submit")
-                        .padding()
-                        .background(Color.blue)
+                    Text("Leave")
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
                 }
+
                 Button(action: {
-                    // Handle the cancel action
                     isPresented.wrappedValue = false
                     navigateToContentView.wrappedValue = true
+                    leaveQueue()
                 }) {
-                    Text("Cancel")
-                        .padding()
-                        .background(Color.gray)
+                    Text("Skip")
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
                 }
             }
         }
         .padding()
         .background(Color.white)
-        .cornerRadius(12)
-        .shadow(radius: 10)
-        .frame(maxWidth: 300)
+        .cornerRadius(10)
     }
-    
-    struct StarRatingView: View {
-        @Binding var rating: Int
-        
-        var body: some View {
+
+    func CommentsPopup(isPresented: Binding<Bool>, userComment: Binding<String>) -> some View {
+        VStack {
+            Text("Your Comments")
+                .font(.headline)
+
+            TextField("Enter your comment", text: userComment)
+                .frame(height: 100)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding()
+
             HStack {
-                ForEach(1..<6) { index in
-                    Image(systemName: index <= rating ? "star.fill" : "star")
-                        .foregroundColor(index <= rating ? .yellow : .gray)
-                        .onTapGesture {
-                            rating = index
-                        }
-                }
-            }
-        }
-    }
-    
-    struct CommentsPopup: View {
-        @Binding var isPresented: Bool
-        
-        var body: some View {
-            VStack {
-                Text("User Comments")
-                    .font(.headline)
-                    .padding(.top)
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 10) {
-                        ForEach(CoreDataManager.shared.getAllUserComments(), id: \.self) { comment in
-                            Text(comment)
-                                .padding()
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(8)
-                        }
-                    }
-                }
-                .frame(height: 200) // Adjust height as needed
-                
                 Button(action: {
-                    // Handle close action
-                    isPresented = false
+                    isPresented.wrappedValue = false
                 }) {
                     Text("Close")
-                        .padding()
-                        .background(Color.blue)
                         .foregroundColor(.white)
-                        .cornerRadius(8)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .cornerRadius(10)
                 }
-                .padding(.top)
             }
             .padding()
-            .background(Color.white)
-            .cornerRadius(12)
-            .shadow(radius: 10)
-            .frame(maxWidth: 300)
+        }
+        .background(Color.white)
+        .cornerRadius(10)
+        .padding()
+    }
+}
+
+struct StarRatingView: View {
+    @Binding var rating: Int
+
+    var body: some View {
+        HStack {
+            ForEach(1..<6) { star in
+                Image(systemName: star <= rating ? "star.fill" : "star")
+                    .foregroundColor(star <= rating ? .yellow : .gray)
+                    .onTapGesture {
+                        rating = star
+                    }
+            }
         }
     }
 }
+
+
 
