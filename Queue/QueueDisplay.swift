@@ -4,7 +4,7 @@ import CoreData
 
 class QueueDisplayViewModel: ObservableObject {
     var db: Firestore
-    @Published var queueCount: Int = 2
+    @Published var queueCount: Int = 0
     @Published var Currentdestination: String = ""
     @Published var peopleJoining: Int = 0
     var userID: String {
@@ -19,7 +19,6 @@ class QueueDisplayViewModel: ObservableObject {
         self.viewContext = viewContext
         self.db = Firestore.firestore()
         self.userID = initialUserID
-        // Use a closure to perform additional setup after initialization
         self.initializeProperties()
     }
     
@@ -76,9 +75,10 @@ class QueueDisplayViewModel: ObservableObject {
             print("Destination is empty in function fetchQueueCount")
             return
         }
-        
+
         let destinationRef = db.collection("Destinations").document(Currentdestination)
         
+        // Adding a real-time listener to the destination document
         destinationRef.addSnapshotListener { snapshot, error in
             guard let data = snapshot?.data() else {
                 print("Error fetching destination document: \(error?.localizedDescription ?? "Unknown error")")
@@ -87,6 +87,12 @@ class QueueDisplayViewModel: ObservableObject {
             
             guard let queueList = data["QueueList"] as? [DocumentReference] else {
                 print("QueueList not found in destination document")
+                return
+            }
+            
+            // Check if the queueList is empty
+            if queueList.isEmpty {
+                self.queueCount = 0
                 return
             }
             
@@ -111,7 +117,8 @@ class QueueDisplayViewModel: ObservableObject {
             }
         }
     }
-    
+
+
     func fetchPeopleJoining(completion: @escaping () -> Void) {
         guard let userID = getUserID() else {
             print("User ID is nil in fetchPeopleJoining")
@@ -222,6 +229,7 @@ import SwiftUI
 import CoreData
 import FirebaseFirestore
 
+
 struct QueueDisplay: View {
     @Environment(\.managedObjectContext) private var viewContext
     @ObservedObject var viewModel: QueueDisplayViewModel
@@ -260,7 +268,7 @@ struct QueueDisplay: View {
                 Text("Destination: \(viewModel.Currentdestination). User: \(viewModel.userID)")
                 
                 NavigationLink(
-                    destination: InQueuePage(refreshManager: refreshManager, userID: userID),
+                    destination: InQueuePage(refreshManager: refreshManager),
                     isActive: $navigateToQueuePage,
                     label: {
                         EmptyView()
@@ -327,5 +335,5 @@ struct QueueDisplay: View {
     }
 }
 
-        
-        
+
+
