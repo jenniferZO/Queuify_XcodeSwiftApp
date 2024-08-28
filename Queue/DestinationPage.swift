@@ -17,6 +17,8 @@ struct DestinationPage: View {
                     .font(.title)
                     .padding()
                     .navigationBarTitle("My Queue")
+                    .navigationBarBackButtonHidden(true)
+        
                 
                 HStack(spacing: 10) {
                     Button(action: {
