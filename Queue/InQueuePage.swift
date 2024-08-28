@@ -255,6 +255,7 @@ struct InQueuePage: View {
                     }
                 }
                 .navigationBarHidden(true)
+                .navigationBarBackButtonHidden(true)
                 .onAppear {
                     inQueueManager.fetchMyDestination()
                     inQueueManager.requestNotificationPermission()
