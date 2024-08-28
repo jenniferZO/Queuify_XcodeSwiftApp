@@ -266,6 +266,7 @@ struct QueueDisplay: View {
                 .padding(.top, 20)
                 
                 Text("Destination: \(viewModel.Currentdestination). User: \(viewModel.userID)")
+                .navigationBarBackButtonHidden(true) //not tested yet
                 
                 NavigationLink(
                     destination: InQueuePage(refreshManager: refreshManager),
