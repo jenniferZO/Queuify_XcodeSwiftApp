@@ -16,9 +16,8 @@ struct DestinationPage: View {
                 Text(destination)
                     .font(.title)
                     .padding()
-                    .navigationBarTitle("My Queue")
+                    .navigationTitle("My Queue")
                     .navigationBarBackButtonHidden(true)
-        
                 
                 HStack(spacing: 10) {
                     Button(action: {
@@ -102,8 +101,10 @@ struct DestinationPage: View {
                     }
                 }
             }
+            .navigationBarBackButtonHidden(true)
         }
         .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
     }
     
     // Function to check if a destination is selected
