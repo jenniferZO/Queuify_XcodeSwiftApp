@@ -249,7 +249,7 @@ struct QueueDisplay: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("There are \(viewModel.queueCount) people in the queue for \(viewModel.Currentdestination).")
+                Text("There is currently \(viewModel.queueCount) people in the queue for \(viewModel.Currentdestination).")
                     .padding()
                 
                 Button(action: {
@@ -266,7 +266,6 @@ struct QueueDisplay: View {
                 .padding(.top, 20)
                 
                 Text("Destination: \(viewModel.Currentdestination). User: \(viewModel.userID)")
-                .navigationBarBackButtonHidden(true) //not tested yet
                 
                 NavigationLink(
                     destination: InQueuePage(refreshManager: refreshManager),
@@ -284,21 +283,26 @@ struct QueueDisplay: View {
                     }
                 )
             }
+            .navigationBarBackButtonHidden(false)
+            .navigationBarHidden(false)
             .onAppear {
                 viewModel.fetchSelectedDestination()
             }
             .onChange(of: refreshManager.shouldRefresh) { _ in
                 viewModel.fetchSelectedDestination()
             }
-            .navigationBarTitle("Queue Display", displayMode: .inline)
             .sheet(isPresented: $showPopup) {
                 VStack {
                     Text("Payment")
                         .font(.title)
                         .padding(.bottom, 10)
                     
-                    Text("1 pound per person, no matter the time spent queuing")
+                    Text("Only £1 per person, no matter how long you queue! ")
                         .padding(.bottom, 20)
+                    
+                    Text("A small service fee of £1 (excl. VAT) per person will be collected by your destination upon entry. No extra hassle, we’ll take care of the rest!")
+                        . font(.footnote)
+                    
                     
                     HStack {
                         Button(action: {
@@ -331,10 +335,10 @@ struct QueueDisplay: View {
                     .padding(.horizontal)
                 }
                 .padding()
+                .navigationBarBackButtonHidden(true)
             }
+            .navigationBarBackButtonHidden(true)
         }
+        .navigationBarBackButtonHidden(true)
     }
 }
-
-
-
