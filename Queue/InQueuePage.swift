@@ -203,90 +203,92 @@ struct InQueuePage: View {
     @State private var navigateToContentView = false
     @State private var rating: Int = 0
     @State private var showingCommentsPopup = false
-    
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .bottomTrailing) {
-                VStack {
-                    Text("You are in position \(inQueueManager.queuePosition) of the line for \(inQueueManager.myDestination).")
-                        .padding()
-                  
-                    Text("Please check this page frequently. When your queue position is 30 or less, make your way to the destination. Once you have entered, remember to press the 'Leave' button to officially exit the queue. Thank you!")
-                        .font(.footnote)
+            NavigationView {
+                ZStack(alignment: .bottomTrailing) {
+                    VStack {
+                        Text("You are in position \(inQueueManager.queuePosition) of the line for \(inQueueManager.myDestination).")
+                            .padding()
+                      
+                        Text("Please check this page frequently. When your queue position is 30 or less, make your way to the destination. Once you have entered, remember to press the 'Leave' button to officially exit the queue. Thank you!")
+                            .font(.footnote)
 
-                    
-                    Spacer()
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            showingConfirmation = true
+                        }) {
+                            Text("Leave the Queue")
+                                .foregroundColor(.white)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.blue)
+                                .cornerRadius(10)
+                                .padding(.horizontal)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .alert(isPresented: $showingConfirmation) {
+                            Alert(
+                                title: Text("Are you sure you want to leave the queue?"),
+                                primaryButton: .default(Text("Yes")) {
+                                    leaveQueue()
+                                    showingReviewPopup = true
+                                },
+                                secondaryButton: .cancel(Text("No"))
+                            )
+                        }
+                        
+                        NavigationLink(destination: WelcomePage(refreshManager: refreshManager), isActive: $navigateToContentView) {
+                            EmptyView()
+                        }
+                        .hidden()
+                        
+                        if showingReviewPopup {
+                            ReviewPopup(
+                                isPresented: $showingReviewPopup,
+                                navigateToContentView: $navigateToContentView,
+                                rating: $rating,
+                                userComment: $userComment
+                            )
+                        }
+                    }
+                    .navigationBarHidden(true)
+                    .navigationBarBackButtonHidden(true)
+                    .onAppear {
+                        inQueueManager.fetchMyDestination()
+                        inQueueManager.requestNotificationPermission()
+                        showingNotificationPopup = true
+                    }
+                    .onChange(of: inQueueManager.queuePosition) { newValue in
+                        print("Queue position updated to \(newValue)")
+                    }
+                    .onReceive(refreshManager.$shouldRefresh) { _ in
+                        inQueueManager.fetchMyDestination()
+                    }
                     
                     Button(action: {
-                        showingConfirmation = true
+                        showingCommentsPopup = true
                     }) {
-                        Text("Leave the Queue")
-                            .foregroundColor(.white)
+                        Image(systemName: "message.circle.fill")
+                            .font(.system(size: 32))
+                            .foregroundColor(.blue)
                             .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.blue)
-                            .cornerRadius(10)
-                            .padding(.horizontal)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .alert(isPresented: $showingConfirmation) {
-                        Alert(
-                            title: Text("Are you sure you want to leave the queue?"),
-                            primaryButton: .default(Text("Yes")) {
-                                leaveQueue()
-                                showingReviewPopup = true
-                            },
-                            secondaryButton: .cancel(Text("No"))
-                        )
-                    }
+                    .offset(x: -16, y: -50)
                     
-                    NavigationLink(destination: WelcomePage(refreshManager: refreshManager), isActive: $navigateToContentView) {
-                        EmptyView()
+                    if showingCommentsPopup {
+                        CommentsPopup(isPresented: $showingCommentsPopup, userComment: $userComment)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black.opacity(0.4).edgesIgnoringSafeArea(.all))
                     }
-                    .hidden()
-                    
-                    if showingReviewPopup {
-                        ReviewPopup(
-                            isPresented: $showingReviewPopup,
-                            navigateToContentView: $navigateToContentView,
-                            rating: $rating,
-                            userComment: $userComment
-                        )
-                    }
-                }
-                .navigationBarHidden(true)
-                .navigationBarBackButtonHidden(true)
-                .onAppear {
-                    inQueueManager.fetchMyDestination()
-                    inQueueManager.requestNotificationPermission()
-                    showingNotificationPopup = true
-                }
-                .onChange(of: inQueueManager.queuePosition) { newValue in
-                    print("Queue position updated to \(newValue)")
-                }
-                .onReceive(refreshManager.$shouldRefresh) { _ in
-                    inQueueManager.fetchMyDestination()
-                }
-                
-                Button(action: {
-                    showingCommentsPopup = true
-                }) {
-                    Image(systemName: "message.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(.blue)
-                        .padding()
-                }
-                .buttonStyle(PlainButtonStyle())
-                .offset(x: -16, y: -50)
-                
-                if showingCommentsPopup {
-                    CommentsPopup(isPresented: $showingCommentsPopup, userComment: $userComment)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.4).edgesIgnoringSafeArea(.all))
                 }
             }
+            .navigationBarBackButtonHidden(true)
         }
-    }
+
+    
 
     func leaveQueue() {
         inQueueManager.leaveQueue()
@@ -398,6 +400,3 @@ struct StarRatingView: View {
         }
     }
 }
-
-
-
