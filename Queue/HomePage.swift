@@ -7,11 +7,15 @@ struct HomePage: View {
     @State private var searchResults: [String] = []
     
     @EnvironmentObject var destinationManager: DestinationManager
+    @Environment(\.presentationMode) var presentationMode // Access to the presentation mode to dismiss the view
     
     var body: some View {
         NavigationView {
             VStack {
-                Text("🌎 Select your destination.")
+                Text("🌎 Search for your destination.")
+                
+                Text("Note: Press enter on your keyboard before searching.")
+                    .font(.footnote)
                 
                 HStack {
                     Spacer()
@@ -40,10 +44,20 @@ struct HomePage: View {
                     }
                 }
                 .disabled(searchText.isEmpty)
-                .navigationBarBackButtonHidden(true)
+                
             }
             Spacer()
         }
+        .navigationBarBackButtonHidden(true) // Hides default back button
+        .navigationBarItems(leading: Button(action: {
+            presentationMode.wrappedValue.dismiss() // Dismiss the current view and go back
+        }) {
+            HStack {
+                Image(systemName: "chevron.left") // Chevron icon for back button
+                Text("Back")
+            }
+            .foregroundColor(.blue)
+        })
         .onAppear {
             destinationManager.fetchDestinationsFromFirestore()
         }
@@ -61,6 +75,7 @@ struct HomePage: View {
         }
     }
 }
+
 
 import SwiftUI
 import FirebaseFirestore
@@ -95,6 +110,7 @@ struct SearchResultsPage: View {
             }
         }
         .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
     }
     
     private func updateSelectedDestination(_ destination: String) {
