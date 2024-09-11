@@ -13,7 +13,7 @@ struct WelcomePage: View {
     @State private var navigateToHomePage = false
     @State private var navigateToStartPage = false
     @State private var showConsentPopup = false
-    @State private var consentGiven = false
+    @State private var consentGiven = UserDefaults.standard.bool(forKey: "consentGiven")
     @State private var consentAction: (() -> Void)?
 
     private let coreDataManager = CoreDataManager.shared
@@ -32,21 +32,33 @@ struct WelcomePage: View {
                 Spacer()
 
                 JoinQueueButton(title: "Join a Queue") {
-                    consentAction = {
+                    if !consentGiven {
+                        consentAction = {
+                            generateAndSaveUser {
+                                navigateToHomePage = true
+                            }
+                        }
+                        showConsentPopup = true
+                    } else {
                         generateAndSaveUser {
                             navigateToHomePage = true
                         }
                     }
-                    showConsentPopup = true
                 }
 
                 JoinQueueButton(title: "Start a Queue") {
-                    consentAction = {
+                    if !consentGiven {
+                        consentAction = {
+                            generateAndSaveUser {
+                                navigateToStartPage = true
+                            }
+                        }
+                        showConsentPopup = true
+                    } else {
                         generateAndSaveUser {
                             navigateToStartPage = true
                         }
                     }
-                    showConsentPopup = true
                 }
 
                 Spacer()
@@ -80,6 +92,7 @@ struct WelcomePage: View {
                 }
             }
         }
+        .navigationBarBackButtonHidden(true)
     }
 
     // Function to generate a unique 8-digit user ID
@@ -134,6 +147,7 @@ struct WelcomePage: View {
     }
 }
 
+
 struct ConsentPopup: View {
     @Binding var showPopup: Bool
     @Binding var consentGiven: Bool
@@ -175,6 +189,7 @@ struct ConsentPopup: View {
                     if isFirstCheckboxChecked && isSecondCheckboxChecked {
                         consentGiven = true
                         showPopup = false
+                        UserDefaults.standard.set(true, forKey: "consentGiven")
                     } else {
                         showAlert = true // Show alert if not both checkboxes are checked
                     }
