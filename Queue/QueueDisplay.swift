@@ -237,7 +237,6 @@ struct QueueDisplay: View {
     var userID: String
     
     @State private var navigateToQueuePage = false
-    @State private var showPopup = false
     @State private var navigateToWelcomePage = false
     
     init(viewContext: NSManagedObjectContext, refreshManager: RefreshManager, userID: String) {
@@ -249,11 +248,12 @@ struct QueueDisplay: View {
     var body: some View {
         NavigationView {
             VStack {
-                Text("There is currently \(viewModel.queueCount) people in the queue for \(viewModel.Currentdestination).")
+                Text("There are currently \(viewModel.queueCount) people in the queue for \(viewModel.Currentdestination).")
                     .padding()
                 
                 Button(action: {
-                    showPopup = true
+                    navigateToQueuePage = true
+                    viewModel.joinQueue()
                 }) {
                     Text("Join Queue")
                         .foregroundColor(.white)
@@ -291,53 +291,6 @@ struct QueueDisplay: View {
             .onChange(of: refreshManager.shouldRefresh) { _ in
                 viewModel.fetchSelectedDestination()
             }
-            .sheet(isPresented: $showPopup) {
-                VStack {
-                    Text("Payment")
-                        .font(.title)
-                        .padding(.bottom, 10)
-                    
-                    Text("Only £1 per person, no matter how long you queue! ")
-                        .padding(.bottom, 20)
-                    
-                    Text("A small service fee of £1 (excl. VAT) per person will be collected by your destination upon entry. No extra hassle, we’ll take care of the rest!")
-                        . font(.footnote)
-                    
-                    
-                    HStack {
-                        Button(action: {
-                            viewModel.deleteUserDocument {
-                                showPopup = false
-                                navigateToWelcomePage = true
-                            }
-                        }) {
-                            Text("Leave")
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                        }
-                        
-                        Spacer()
-                        
-                        Button(action: {
-                            showPopup = false
-                            navigateToQueuePage = true
-                            viewModel.joinQueue()
-                        }) {
-                            Text("I agree")
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                .padding()
-                .navigationBarBackButtonHidden(true)
-            }
-            .navigationBarBackButtonHidden(true)
         }
         .navigationBarBackButtonHidden(true)
     }
